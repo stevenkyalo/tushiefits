@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Product - TushieFits Admin</title>
+    <style>
+        /* Copy ALL styles from add-product.html here */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { margin-bottom: 30px; color: #333; }
+        .back-link { color: #007bff; text-decoration: none; margin-bottom: 20px; display: inline-block; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; color: #555; }
+        input, textarea, select { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px; font-family: inherit; }
+        textarea { resize: vertical; min-height: 80px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .checkbox-group { display: flex; align-items: center; gap: 10px; }
+        .checkbox-group input { width: auto; }
+        .btn-submit { background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; padding: 14px 30px; border: none; border-radius: 6px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; transition: opacity 0.2s; }
+        .btn-submit:hover { opacity: 0.9; }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+        .success { background: #d4edda; color: #155724; padding: 15px; border-radius: 6px; margin-bottom: 20px; display: none; }
+        .error { background: #f8d7da; color: #721c24; padding: 15px; border-radius: 6px; margin-bottom: 20px; display: none; }
+        .current-image { margin: 10px 0; display: flex; gap: 10px; flex-wrap: wrap; }
+        .current-image img { width: 100px; height: 100px; object-fit: cover; border-radius: 6px; border: 2px solid #eee; }
+        .file-upload { border: 2px dashed #ddd; padding: 30px; text-align: center; border-radius: 6px; cursor: pointer; }
+        .file-upload:hover { border-color: #ee5a24; }
+        .file-upload input { display: none; }
+        .file-upload .label { color: #888; font-size: 16px; }
+        .file-upload .label strong { color: #ee5a24; }
+        #fileList { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px; }
+        #fileList .file-item { background: #f0f0f0; padding: 5px 12px; border-radius: 20px; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+        #fileList .file-item .remove { cursor: pointer; color: #dc3545; font-weight: bold; }
+        .preview-container { margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+        .preview-container img { width: 100%; height: 100px; object-fit: cover; border-radius: 6px; border: 2px solid #eee; }
+        .loading { text-align: center; padding: 50px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/admin/dashboard" class="back-link">← Back to Dashboard</a>
+        <h1>✏️ Edit Product</h1>
+
+        <div class="success" id="successMessage">✅ Product updated successfully!</div>
+        <div class="error" id="errorMessage">❌ Failed to update product. Please try again.</div>
+
+        <div id="loadingContainer" class="loading">Loading product details...</div>
+
+        <form id="productForm" enctype="multipart/form-data" style="display: none;">
+            <div class="form-group">
+                <label for="name">Product Name *</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description *</label>
+                <textarea id="description" name="description" required></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="price">Price (KSh) *</label>
+                    <input type="number" id="price" name="price" required step="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="category">Category *</label>
+                    <input type="text" id="category" name="category" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="subCategory">Sub-Category</label>
+                    <input type="text" id="subCategory" name="subCategory">
+                </div>
+                <div class="form-group">
+                    <label for="gender">Gender</label>
+                    <select id="gender" name="gender">
+                        <option value="">Select</option>
+                        <option value="Women">Women</option>
+                        <option value="Men">Men</option>
+                        <option value="Unisex">Unisex</option>
+                        <option value="Girls">Girls</option>
+                        <option value="Boys">Boys</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="sizes">Sizes (comma separated)</label>
+                    <input type="text" id="sizes" name="sizes" placeholder="e.g., S, M, L, XL">
+                </div>
+                <div class="form-group">
+                    <label for="colors">Colors (comma separated)</label>
+                    <input type="text" id="colors" name="colors" placeholder="e.g., Red, Blue, Black">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="material">Material</label>
+                <input type="text" id="material" name="material">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="inStock" name="inStock">
+                    <label for="inStock" style="margin-bottom: 0;">In Stock</label>
+                </div>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="featured" name="featured">
+                    <label for="featured" style="margin-bottom: 0;">Featured Product</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Current Images</label>
+                <div class="current-image" id="currentImages"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Upload New Images (optional)</label>
+                <div class="file-upload" id="fileDropZone">
+                    <div class="label">
+                        <strong>Click to upload</strong> or drag and drop<br>
+                        <span style="font-size: 14px; color: #aaa;">Max 5 images (JPG, PNG, WebP)</span>
+                    </div>
+                    <input type="file" id="images" name="images" accept="image/*" multiple>
+                </div>
+                <div id="fileList"></div>
+                <div class="preview-container" id="previewContainer"></div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn">Update Product</button>
+        </form>
+    </div>
+
+    <script>
+        const productId = window.location.pathname.split('/').pop()
+        let selectedFiles = []
+        let currentImages = []
+
+        // Fetch product data
+        async function loadProduct() {
+            try {
+                const response = await fetch(`/api/products/${productId}`)
+                const data = await response.json()
+                
+                if (!data.success) {
+                    alert('Product not found')
+                    return
+                }
+
+                const product = data.product
+                currentImages = product.images || []
+
+                // Populate form
+                document.getElementById('name').value = product.name
+                document.getElementById('description').value = product.description
+                document.getElementById('price').value = product.price
+                document.getElementById('category').value = product.category
+                document.getElementById('subCategory').value = product.subCategory || ''
+                document.getElementById('gender').value = product.gender || ''
+                document.getElementById('sizes').value = (product.sizes || []).join(', ')
+                document.getElementById('colors').value = (product.colors || []).join(', ')
+                document.getElementById('material').value = product.material || ''
+                document.getElementById('inStock').checked = product.inStock
+                document.getElementById('featured').checked = product.featured
+
+                // Show current images
+                const container = document.getElementById('currentImages')
+                container.innerHTML = currentImages.map(url => `
+                    <img src="${url}" alt="Product image">
+                `).join('') || '<p style="color: #999;">No images</p>'
+
+                document.getElementById('loadingContainer').style.display = 'none'
+                document.getElementById('productForm').style.display = 'block'
+            } catch (error) {
+                document.getElementById('loadingContainer').textContent = 'Error loading product'
+                console.error(error)
+            }
+        }
+
+        // File upload handling (same as add-product)
+        const fileInput = document.getElementById('images')
+        const fileList = document.getElementById('fileList')
+        const previewContainer = document.getElementById('previewContainer')
+        const dropZone = document.getElementById('fileDropZone')
+
+        dropZone.addEventListener('click', () => fileInput.click())
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault()
+            dropZone.style.borderColor = '#ee5a24'
+            dropZone.style.background = '#fff5f0'
+        })
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.borderColor = '#ddd'
+            dropZone.style.background = 'transparent'
+        })
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault()
+            dropZone.style.borderColor = '#ddd'
+            dropZone.style.background = 'transparent'
+            handleFiles(e.dataTransfer.files)
+        })
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files)
+        })
+
+        function handleFiles(files) {
+            for (let file of files) {
+                if (selectedFiles.length >= 5) {
+                    alert('Maximum 5 images allowed')
+                    break
+                }
+                if (file.size > 5 * 1024 * 1024) {
+                    alert(`File ${file.name} is too large (max 5MB)`)
+                    continue
+                }
+                selectedFiles.push(file)
+            }
+            updateFileList()
+        }
+
+        function updateFileList() {
+            fileList.innerHTML = selectedFiles.map((file, index) => `
+                <div class="file-item">
+                    📷 ${file.name}
+                    <span class="remove" onclick="removeFile(${index})">✕</span>
+                </div>
+            `).join('')
+
+            previewContainer.innerHTML = ''
+            selectedFiles.forEach(file => {
+                const reader = new FileReader()
+                reader.onload = (e) => {
+                    const img = document.createElement('img')
+                    img.src = e.target.result
+                    previewContainer.appendChild(img)
+                }
+                reader.readAsDataURL(file)
+            })
+
+            const dataTransfer = new DataTransfer()
+            selectedFiles.forEach(file => dataTransfer.items.add(file))
+            fileInput.files = dataTransfer.files
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1)
+            updateFileList()
+        }
+
+        // Form submission
+        const form = document.getElementById('productForm')
+        const submitBtn = document.getElementById('submitBtn')
+        const successMsg = document.getElementById('successMessage')
+        const errorMsg = document.getElementById('errorMessage')
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault()
+            
+            submitBtn.disabled = true
+            submitBtn.textContent = 'Updating product...'
+            successMsg.style.display = 'none'
+            errorMsg.style.display = 'none'
+
+            const formData = new FormData()
+            
+            const formElements = form.elements
+            for (let element of formElements) {
+                if (element.name && element.name !== 'images') {
+                    if (element.type === 'checkbox') {
+                        formData.append(element.name, element.checked)
+                    } else if (element.value) {
+                        formData.append(element.name, element.value)
+                    }
+                }
+            }
+
+            const sizes = document.getElementById('sizes').value.split(',').map(s => s.trim()).filter(s => s)
+            const colors = document.getElementById('colors').value.split(',').map(s => s.trim()).filter(s => s)
+            formData.append('sizes', JSON.stringify(sizes))
+            formData.append('colors', JSON.stringify(colors))
+
+            selectedFiles.forEach(file => {
+                formData.append('images', file)
+            })
+
+            try {
+                const response = await fetch(`/api/products/${productId}`, {
+                    method: 'PUT',
+                    body: formData
+                })
+
+                const data = await response.json()
+
+                if (data.success) {
+                    successMsg.style.display = 'block'
+                    setTimeout(() => {
+                        window.location.href = '/admin/dashboard'
+                    }, 1500)
+                } else {
+                    errorMsg.textContent = `❌ ${data.error || 'Failed to update product'}`
+                    errorMsg.style.display = 'block'
+                }
+            } catch (error) {
+                errorMsg.textContent = `❌ Error: ${error.message}`
+                errorMsg.style.display = 'block'
+            } finally {
+                submitBtn.disabled = false
+                submitBtn.textContent = 'Update Product'
+            }
+        })
+
+        loadProduct()
+    </script>
+</body>
+</html>

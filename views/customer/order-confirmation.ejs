@@ -1,0 +1,57 @@
+<div style="text-align: center; padding: 40px 20px;">
+    <div style="background: white; border-radius: 16px; padding: 50px; max-width: 600px; margin: 0 auto; box-shadow: 0 2px 20px rgba(0,0,0,0.08);">
+        <div style="font-size: 80px; margin-bottom: 20px; color: #28a745;">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h1 style="font-size: 32px; font-weight: 700; margin-bottom: 10px; color: #1a1a1a;">
+            Order Confirmed! 🎉
+        </h1>
+        <p style="color: #666; font-size: 18px; margin-bottom: 5px;">
+            Thank you for shopping at TushieFits!
+        </p>
+        <p style="color: #999; font-size: 16px; margin-bottom: 30px;">
+            We've received your order and will process it shortly.
+        </p>
+        
+        <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; text-align: left; margin-bottom: 30px;">
+            <p style="font-weight: 600; margin-bottom: 5px;">
+                Order Number: <span style="color: #ee5a24;"><%= order.orderNumber %></span>
+            </p>
+            <p style="margin-bottom: 5px;">
+                <strong>Total:</strong> KSh <%= order.totalAmount.toLocaleString() %>
+            </p>
+            <p style="margin-bottom: 5px;">
+                <strong>Payment Method:</strong> <%= order.paymentMethod === 'mpesa' ? 'M-Pesa' : 'Cash on Delivery' %>
+            </p>
+            <p style="margin-bottom: 0;">
+                <strong>Status:</strong> <span style="color: #ffc107;">Pending</span>
+            </p>
+        </div>
+        
+        <p style="color: #888; font-size: 14px; margin-bottom: 30px;">
+            We'll contact you on <strong><%= order.phone %></strong> for delivery confirmation.
+            <% if (order.paymentMethod === 'mpesa') { %>
+                <br>You'll receive an M-Pesa payment prompt shortly.
+            <% } else { %>
+                <br>Pay when you receive your items.
+            <% } %>
+        </p>
+        
+        <a href="/" class="btn" style="padding: 14px 40px;">
+            <i class="fas fa-home"></i> Continue Shopping
+        </a>
+    </div>
+</div>
+
+<script>
+    function updateCartCount() {
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+        const badge = document.getElementById('cartCount');
+        if (badge) {
+            badge.textContent = count;
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', updateCartCount);
+</script>

@@ -1,0 +1,149 @@
+<h1 style="font-size: 32px; font-weight: 700; margin-bottom: 10px;">
+    <i class="fas fa-shopping-cart"></i> Your Cart
+</h1>
+<p style="color: #666; margin-bottom: 30px;">
+    Review your items before checking out
+</p>
+
+<div id="cartContainer">
+    <div style="text-align: center; padding: 60px 20px; color: #999;">
+        <i class="fas fa-shopping-bag" style="font-size: 60px; margin-bottom: 20px; display: block;"></i>
+        <h2 style="color: #666; font-weight: 400;">Your cart is empty</h2>
+        <p style="margin-top: 10px;">
+            <a href="/products" style="color: #ee5a24; text-decoration: none; font-weight: 600;">
+                Start shopping →
+            </a>
+        </p>
+    </div>
+</div>
+
+<script>
+    function updateCartCount() {
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+        const badge = document.getElementById('cartCount');
+        if (badge) {
+            badge.textContent = count;
+        }
+    }
+
+    async function loadCart() {
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        
+        if (cart.length === 0) {
+            return;
+        }
+        
+        try {
+            const productPromises = cart.map(item => 
+                fetch(`/api/products/${item.id}`).then(res => res.json())
+            );
+            
+            const productResponses = await Promise.all(productPromises);
+            const products = productResponses.map((data, index) => ({
+                ...data.product,
+                quantity: cart[index].quantity
+            }));
+            
+            renderCart(products);
+        } catch (error) {
+            console.error('Error loading cart:', error);
+            document.getElementById('cartContainer').innerHTML = `
+                <div style="text-align: center; padding: 60px 20px; color: #dc3545;">
+                    <h2>Error loading cart</h2>
+                    <p>Please try again later.</p>
+                </div>
+            `;
+        }
+    }
+    
+    function renderCart(products) {
+        const container = document.getElementById('cartContainer');
+        const total = products.reduce((sum, p) => sum + (p.price * p.quantity), 0);
+        
+        container.innerHTML = `
+            <div style="background: white; border-radius: 12px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);">
+                ${products.map(product => `
+                    <div style="
+                        display: flex;
+                        align-items: center;
+                        gap: 20px;
+                        padding: 15px 0;
+                        border-bottom: 1px solid #eee;
+                    ">
+                        <div style="
+                            width: 100px;
+                            height: 100px;
+                            background: #f0f0f0;
+                            border-radius: 8px;
+                            overflow: hidden;
+                            flex-shrink: 0;
+                        ">
+                            ${product.images && product.images.length > 0 ? 
+                                `<img src="${product.images[0]}" style="width: 100%; height: 100%; object-fit: cover;">` :
+                                `<i class="fas fa-image" style="font-size: 40px; color: #ccc; display: flex; align-items: center; justify-content: center; height: 100%;"></i>`
+                            }
+                        </div>
+                        <div style="flex: 1;">
+                            <h4 style="font-weight: 600; margin-bottom: 3px;">${product.name}</h4>
+                            <p style="color: #888; font-size: 14px;">${product.category}</p>
+                            <div style="display: flex; align-items: center; gap: 15px; margin-top: 8px;">
+                                <span style="font-weight: 700; color: #ee5a24; font-size: 18px;">
+                                    KSh ${(product.price * product.quantity).toLocaleString()}
+                                </span>
+                                <div style="display: flex; align-items: center; border: 1px solid #ddd; border-radius: 6px;">
+                                    <button onclick="updateQuantity('${product.id}', -1)" style="padding: 5px 12px; background: none; border: none; cursor: pointer;">-</button>
+                                    <span style="padding: 5px 15px; min-width: 30px; text-align: center;">${product.quantity}</span>
+                                    <button onclick="updateQuantity('${product.id}', 1)" style="padding: 5px 12px; background: none; border: none; cursor: pointer;">+</button>
+                                </div>
+                                <button onclick="removeFromCart('${product.id}')" style="
+                                    background: none;
+                                    border: none;
+                                    color: #dc3545;
+                                    cursor: pointer;
+                                    font-size: 14px;
+                                ">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 20px; border-top: 2px solid #eee;">
+                    <div>
+                        <h3 style="font-size: 20px; font-weight: 700;">Total: <span style="color: #ee5a24;">KSh ${total.toLocaleString()}</span></h3>
+                        <p style="color: #888; font-size: 14px;">${products.length} item(s) in cart</p>
+                    </div>
+                    <a href="/checkout" class="btn" style="padding: 14px 40px;">
+                        <i class="fas fa-lock"></i> Proceed to Checkout
+                    </a>
+                </div>
+            </div>
+        `;
+    }
+    
+    function updateQuantity(productId, delta) {
+        let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        const item = cart.find(i => i.id === productId);
+        if (item) {
+            item.quantity = Math.max(1, item.quantity + delta);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            loadCart();
+        }
+    }
+    
+    function removeFromCart(productId) {
+        let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        cart = cart.filter(i => i.id !== productId);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCartCount();
+        loadCart();
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        updateCartCount();
+        loadCart();
+    });
+</script>

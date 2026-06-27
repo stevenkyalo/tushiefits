@@ -1,0 +1,250 @@
+<!-- Hero Section -->
+<section class="hero" style="
+    background: linear-gradient(135deg, #2d1b0e 0%, #4a2818 50%, #2d1b0e 100%);
+    border-radius: 20px;
+    padding: 60px 40px;
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 30px;
+    min-height: 300px;
+">
+    <div style="flex: 1; min-width: 250px;">
+        <h1 style="
+            color: white;
+            font-size: 42px;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 15px;
+        ">
+            Style That<br>
+            <span style="color: #ff6b6b;">Fits Every You</span>
+        </h1>
+        <p style="color: #ccc; font-size: 18px; margin-bottom: 25px; max-width: 450px;">
+            Discover premium African fashion and hair products. Quality you can feel, style you'll love.
+        </p>
+        <a href="/products" class="btn">
+            <i class="fas fa-shopping-bag"></i> Shop Now
+        </a>
+    </div>
+    <div style="
+        flex: 0 0 200px;
+        text-align: center;
+        background: rgba(255,255,255,0.05);
+        border-radius: 50%;
+        padding: 30px;
+        border: 2px dashed rgba(255,107,107,0.3);
+    ">
+        <i class="fas fa-tshirt" style="font-size: 80px; color: #ff6b6b;"></i>
+        <p style="color: #999; margin-top: 10px;">New Collection</p>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<h2 style="
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+">
+    <i class="fas fa-star" style="color: #ff6b6b;"></i>
+    Featured Products
+</h2>
+
+<% if (featuredProducts && featuredProducts.length > 0) { %>
+    <div class="product-grid" style="
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+    ">
+        <% featuredProducts.forEach(product => { %>
+            <div class="product-card" style="
+                background: white;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+                transition: transform 0.3s, box-shadow 0.3s;
+                cursor: pointer;
+            " onclick="window.location.href='/product/<%= product.id %>'">
+                <div style="
+                    height: 250px;
+                    background: #f0f0f0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    overflow: hidden;
+                    position: relative;
+                ">
+                    <% if (product.images && product.images.length > 0) { %>
+                        <img src="<%= product.images[0] %>" alt="<%= product.name %>" style="
+                            width: 100%;
+                            height: 100%;
+                            object-fit: cover;
+                        ">
+                    <% } else { %>
+                        <i class="fas fa-image" style="font-size: 50px; color: #ccc;"></i>
+                    <% } %>
+                    <% if (product.featured) { %>
+                        <span style="
+                            position: absolute;
+                            top: 10px;
+                            right: 10px;
+                            background: #ff6b6b;
+                            color: white;
+                            padding: 4px 12px;
+                            border-radius: 20px;
+                            font-size: 12px;
+                            font-weight: 600;
+                        ">
+                            <i class="fas fa-star"></i> Featured
+                        </span>
+                    <% } %>
+                </div>
+                <div style="padding: 15px;">
+                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 5px; color: #1a1a1a;">
+                        <%= product.name %>
+                    </h3>
+                    <p style="color: #888; font-size: 14px; margin-bottom: 8px;">
+                        <%= product.category %>
+                    </p>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 20px; font-weight: 700; color: #ee5a24;">
+                            KSh <%= product.price.toLocaleString() %>
+                        </span>
+                        <button onclick="addToCart('<%= product.id %>'); event.stopPropagation();" class="btn" style="padding: 8px 16px; font-size: 14px;">
+                            <i class="fas fa-cart-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+<% } else { %>
+    <p style="color: #999; text-align: center; padding: 40px;">No featured products yet. Check back soon!</p>
+<% } %>
+
+<!-- All Products Preview -->
+<h2 style="
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+">
+    <i class="fas fa-tshirt" style="color: #ee5a24;"></i>
+    All Products
+</h2>
+
+<% if (products && products.length > 0) { %>
+    <div class="product-grid" style="
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 25px;
+        margin-bottom: 20px;
+    ">
+        <% products.forEach(product => { %>
+            <div class="product-card" style="
+                background: white;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+                transition: transform 0.3s, box-shadow 0.3s;
+                cursor: pointer;
+            " onclick="window.location.href='/product/<%= product.id %>'">
+                <div style="
+                    height: 250px;
+                    background: #f0f0f0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    overflow: hidden;
+                    position: relative;
+                ">
+                    <% if (product.images && product.images.length > 0) { %>
+                        <img src="<%= product.images[0] %>" alt="<%= product.name %>" style="
+                            width: 100%;
+                            height: 100%;
+                            object-fit: cover;
+                        ">
+                    <% } else { %>
+                        <i class="fas fa-image" style="font-size: 50px; color: #ccc;"></i>
+                    <% } %>
+                    <% if (!product.inStock) { %>
+                        <span style="
+                            position: absolute;
+                            top: 10px;
+                            left: 10px;
+                            background: #dc3545;
+                            color: white;
+                            padding: 4px 12px;
+                            border-radius: 20px;
+                            font-size: 12px;
+                            font-weight: 600;
+                        ">
+                            Out of Stock
+                        </span>
+                    <% } %>
+                </div>
+                <div style="padding: 15px;">
+                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 5px; color: #1a1a1a;">
+                        <%= product.name %>
+                    </h3>
+                    <p style="color: #888; font-size: 14px; margin-bottom: 8px;">
+                        <%= product.category %>
+                    </p>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 20px; font-weight: 700; color: #ee5a24;">
+                            KSh <%= product.price.toLocaleString() %>
+                        </span>
+                        <% if (product.inStock) { %>
+                            <button onclick="addToCart('<%= product.id %>'); event.stopPropagation();" class="btn" style="padding: 8px 16px; font-size: 14px;">
+                                <i class="fas fa-cart-plus"></i>
+                            </button>
+                        <% } else { %>
+                            <span style="color: #999; font-size: 14px;">Out of Stock</span>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+<% } else { %>
+    <p style="color: #999; text-align: center; padding: 40px;">
+        No products available yet. 
+        <a href="/admin/dashboard" style="color: #ee5a24;">Add your first product!</a>
+    </p>
+<% } %>
+
+<script>
+    function updateCartCount() {
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+        const badge = document.getElementById('cartCount');
+        if (badge) {
+            badge.textContent = count;
+        }
+    }
+
+    function addToCart(productId) {
+        let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        const existing = cart.find(item => item.id === productId);
+        
+        if (existing) {
+            existing.quantity += 1;
+        } else {
+            cart.push({ id: productId, quantity: 1 });
+        }
+        
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCartCount();
+        alert('✅ Product added to cart!');
+    }
+
+    document.addEventListener('DOMContentLoaded', updateCartCount);
+</script>
