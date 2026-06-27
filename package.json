@@ -6,7 +6,7 @@
   "type": "module",
  "scripts": {
   "postinstall": "npx prisma generate",
-  "start": "npx prisma db push && node server.js"
+  "start": "npx prisma db push && node seed-products.js && node server.js"
 } ,
   "keywords": [],
   "author": "",
